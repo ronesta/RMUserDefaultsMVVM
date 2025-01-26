@@ -15,13 +15,14 @@ final class CharacterViewController: UIViewController {
         return tableView
     }()
 
-    var characters = [Character]()
+    private var viewModel = CharacterViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         setupViews()
-        getCharacters()
+        setupBindings()
+        viewModel.getCharacters()
     }
 
     private func setupNavigationBar() {
@@ -44,23 +45,10 @@ final class CharacterViewController: UIViewController {
         }
     }
 
-    private func getCharacters() {
-        if let savedCharacters = StorageManager.shared.loadCharacters() {
-            characters = savedCharacters
-            tableView.reloadData()
-            return
-        }
-
-        NetworkManager.shared.getCharacters { [weak self] result in
-            switch result {
-            case .success(let character):
-                DispatchQueue.main.async {
-                    self?.characters = character
-                    self?.tableView.reloadData()
-                    StorageManager.shared.saveCharacters(character)
-                }
-            case .failure(let error):
-                print("Failed to fetch drinks: \(error.localizedDescription)")
+    private func setupBindings() {
+        viewModel.charactersUpdated = { [weak self] in
+            DispatchQueue.main.async {
+                self?.tableView.reloadData()
             }
         }
     }
@@ -68,7 +56,7 @@ final class CharacterViewController: UIViewController {
 
 extension CharacterViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return characters.count
+        viewModel.numberOfCharacters()
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -78,7 +66,7 @@ extension CharacterViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let character = characters[indexPath.row]
+        let character = viewModel.character(at: indexPath.row)
         let imageURL = character.image
 
         NetworkManager.shared.loadImage(from: imageURL) { loadedImage in
@@ -94,6 +82,7 @@ extension CharacterViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - UITableViewDelegate
 extension CharacterViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         128

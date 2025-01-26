@@ -2,7 +2,7 @@
 //  CharacterTableViewCell.swift
 //  RMUserDefaultsMVVM
 //
-//  Created by Ибрагим Габибли on 24.01.2025.
+//  Created by Ибрагим Габибли on 26.01.2025.
 //
 
 import UIKit
