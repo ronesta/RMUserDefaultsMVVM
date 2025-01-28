@@ -73,7 +73,9 @@ extension CharacterViewController: UITableViewDataSource {
                 guard let cell = tableView.cellForRow(at: indexPath) as? CharacterTableViewCell  else {
                     return
                 }
-                cell.configure(with: character, image: loadedImage)
+
+                let viewModel = CharacterCellViewModel(character: character, image: loadedImage)
+                cell.configure(with: viewModel)
             }
         }
 
