@@ -46,14 +46,13 @@ final class CharacterViewController: UIViewController {
     }
 
     private func setupBindings() {
-        viewModel.charactersUpdated = { [weak self] in
-            DispatchQueue.main.async {
-                self?.tableView.reloadData()
-            }
+        viewModel.characters.bind { [weak self] _ in
+            self?.tableView.reloadData()
         }
     }
 }
 
+// MARK: - UITableViewDataSource
 extension CharacterViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         viewModel.numberOfCharacters()

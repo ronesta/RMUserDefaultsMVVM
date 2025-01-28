@@ -8,14 +8,11 @@
 import Foundation
 
 final class CharacterViewModel {
-    private var characters = [Character]()
-
-    var charactersUpdated: (() -> Void)?
+    var characters: Observable<[Character]> = Observable([])
 
     func getCharacters() {
         if let savedCharacters = StorageManager.shared.loadCharacters() {
-            characters = savedCharacters
-            charactersUpdated?()
+            characters.value = savedCharacters
             return
         }
 
@@ -23,8 +20,7 @@ final class CharacterViewModel {
             switch result {
             case .success(let character):
                 DispatchQueue.main.async {
-                    self?.characters = character
-                    self?.charactersUpdated?()
+                    self?.characters.value = character
                     StorageManager.shared.saveCharacters(character)
                 }
             case .failure(let error):
@@ -34,10 +30,10 @@ final class CharacterViewModel {
     }
 
     func numberOfCharacters() -> Int {
-        return characters.count
+        return characters.value.count
     }
 
     func character(at index: Int) -> Character {
-        return characters[index]
+        return characters.value[index]
     }
 }
