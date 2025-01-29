@@ -7,21 +7,30 @@
 
 import Foundation
 
-final class CharacterViewModel {
+final class CharacterViewModel: CharacterViewModelProtocol {
     var characters: Observable<[Character]> = Observable([])
+    private let networkManager: NetworkManagerProtocol?
+    private let storageManager: StorageManagerProtocol?
+
+    init(networkManager: NetworkManagerProtocol?,
+         storageManager: StorageManagerProtocol?
+    ) {
+        self.networkManager = networkManager
+        self.storageManager = storageManager
+    }
 
     func getCharacters() {
-        if let savedCharacters = StorageManager.shared.loadCharacters() {
+        if let savedCharacters = storageManager?.loadCharacters() {
             characters.value = savedCharacters
             return
         }
 
-        NetworkManager.shared.getCharacters { [weak self] result in
+        networkManager?.getCharacters { [weak self] result in
             switch result {
             case .success(let character):
                 DispatchQueue.main.async {
                     self?.characters.value = character
-                    StorageManager.shared.saveCharacters(character)
+                    self?.storageManager?.saveCharacters(character)
                 }
             case .failure(let error):
                 print("Failed to fetch drinks: \(error.localizedDescription)")

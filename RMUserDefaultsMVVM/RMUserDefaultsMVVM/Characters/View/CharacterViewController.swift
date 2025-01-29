@@ -15,14 +15,15 @@ final class CharacterViewController: UIViewController {
         return tableView
     }()
 
-    private var viewModel = CharacterViewModel()
+    var viewModel: CharacterViewModelProtocol?
+    var tableViewDataSource: CharacterDataSourceProtocol?
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupNavigationBar()
         setupViews()
         setupBindings()
-        viewModel.getCharacters()
+        viewModel?.getCharacters()
     }
 
     private func setupNavigationBar() {
@@ -36,7 +37,7 @@ final class CharacterViewController: UIViewController {
         view.addSubview(tableView)
 
         tableView.delegate = self
-        tableView.dataSource = self
+        tableView.dataSource = tableViewDataSource
         tableView.register(CharacterTableViewCell.self,
                            forCellReuseIdentifier: CharacterTableViewCell.id)
 
@@ -46,40 +47,9 @@ final class CharacterViewController: UIViewController {
     }
 
     private func setupBindings() {
-        viewModel.characters.bind { [weak self] _ in
+        viewModel?.characters.bind { [weak self] _ in
             self?.tableView.reloadData()
         }
-    }
-}
-
-// MARK: - UITableViewDataSource
-extension CharacterViewController: UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.numberOfCharacters()
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: CharacterTableViewCell.id,
-            for: indexPath) as? CharacterTableViewCell else {
-            return UITableViewCell()
-        }
-
-        let character = viewModel.character(at: indexPath.row)
-        let imageURL = character.image
-
-        NetworkManager.shared.loadImage(from: imageURL) { loadedImage in
-            DispatchQueue.main.async {
-                guard let cell = tableView.cellForRow(at: indexPath) as? CharacterTableViewCell  else {
-                    return
-                }
-
-                let viewModel = CharacterCellViewModel(character: character, image: loadedImage)
-                cell.configure(with: viewModel)
-            }
-        }
-
-        return cell
     }
 }
 

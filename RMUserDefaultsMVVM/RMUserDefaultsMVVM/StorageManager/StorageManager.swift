@@ -8,11 +8,8 @@
 import Foundation
 import UIKit
 
-final class StorageManager {
-    static let shared = StorageManager()
+final class StorageManager: StorageManagerProtocol {
     private let charactersKey = "charactersKey"
-
-    private init() {}
 
     func saveCharacters(_ characters: [Character]) {
         do {
