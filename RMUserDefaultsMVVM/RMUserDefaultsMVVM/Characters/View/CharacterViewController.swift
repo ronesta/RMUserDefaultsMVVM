@@ -63,4 +63,3 @@ extension CharacterViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }
-
